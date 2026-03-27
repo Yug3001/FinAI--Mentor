@@ -1,17 +1,36 @@
-/* Shared wrapper for all tool pages */
 import { ArrowLeft, AlertCircle } from 'lucide-react'
 
 const ToolShell = ({ title, subtitle, icon: Icon, iconColor, error, onBack, children }) => (
   <div className="max-w-5xl mx-auto space-y-8 py-6">
-    {/* Tool header */}
-    <div className="flex items-start gap-4">
-      <div className="p-3 rounded-2xl border border-white/10 shrink-0" style={{ background: iconColor + '20' }}>
-        <Icon size={26} style={{ color: iconColor }} />
+
+    {/* Header */}
+    <div className="flex items-start justify-between gap-4">
+
+      <div className="flex items-start gap-4">
+        <div
+          className="p-3 rounded-2xl border border-white/10 shrink-0"
+          style={{ background: iconColor + '20' }}
+        >
+          <Icon size={26} style={{ color: iconColor }} />
+        </div>
+
+        <div>
+          <h2 className="text-3xl font-extrabold text-white">{title}</h2>
+          <p className="text-slate-400 mt-0.5">{subtitle}</p>
+        </div>
       </div>
-      <div>
-        <h2 className="text-3xl font-extrabold text-white">{title}</h2>
-        <p className="text-slate-400 mt-0.5">{subtitle}</p>
-      </div>
+
+      {/* Back Button */}
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="flex items-center gap-2 text-sm text-slate-400 hover:text-white border border-slate-700 hover:border-slate-500 px-4 py-2 rounded-xl transition-all"
+        >
+          <ArrowLeft size={16} />
+          Back
+        </button>
+      )}
+
     </div>
 
     {/* Error */}
@@ -23,6 +42,7 @@ const ToolShell = ({ title, subtitle, icon: Icon, iconColor, error, onBack, chil
     )}
 
     {children}
+
   </div>
 )
 
