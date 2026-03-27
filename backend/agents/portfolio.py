@@ -1,10 +1,72 @@
 import os
 import requests
 import json
+import logging
+import base64
+
+logger = logging.getLogger(__name__)
 
 class PortfolioAgent:
     def __init__(self):
         self.api_key = os.getenv("GEMINI_API_KEY")
+        logger.info("🚀 PortfolioAgent initialized")
+        if self.api_key:
+            logger.info(f"✅ Gemini API key loaded")
+        else:
+            logger.warning("⚠️ Gemini API key not found - using fallback responses")
+
+    def validate_portfolio_data(self, file_content, file_name):
+        """Validate if the file contains valid portfolio data"""
+        try:
+            logger.info(f"🔍 Validating file: {file_name}")
+            
+            # Check file extension
+            file_ext = file_name.split('.')[-1].lower()
+            logger.info(f"📄 File extension: {file_ext}")
+            
+            if file_ext not in ['pdf', 'csv', 'xlsx', 'xls']:
+                logger.warning(f"❌ Invalid extension {file_ext}")
+                return False, "Invalid file format. Expected PDF, CSV, or XLSX"
+            
+            # For CSV files, try to parse and validate content
+            if file_ext == 'csv':
+                try:
+                    # Decode if base64
+                    if isinstance(file_content, str) and len(file_content) > 1000:
+                        decoded = base64.b64decode(file_content).decode('utf-8')
+                    else:
+                        decoded = file_content
+                    
+                    lines = decoded.split('\n')
+                    if len(lines) < 2:
+                        logger.warning(f"❌ CSV has < 2 lines, appears empty")
+                        return False, "CSV file appears to be empty or invalid"
+                    
+                    header = lines[0].lower()
+                    logger.info(f"📋 CSV header: {header[:100]}...")
+                    
+                    # Check for portfolio-related keywords
+                    portfolio_keywords = ['fund', 'investment', 'holdings', 'scheme', 'amount', 'quantity', 'nav', 'value', 'amc']
+                    
+                    has_valid_header = any(keyword in header for keyword in portfolio_keywords)
+                    
+                    if not has_valid_header:
+                        logger.warning(f"❌ No portfolio keywords found in header")
+                        return False, "File doesn't appear to be a portfolio statement. Missing expected columns like 'Fund', 'Amount', 'NAV', etc."
+                    
+                    logger.info(f"✅ CSV validation passed for {file_name}")
+                    return True, "Valid portfolio statement"
+                except Exception as e:
+                    logger.warning(f"⚠️ CSV validation warning: {str(e)}")
+                    return True, "File format recognized (unable to validate content)"
+            
+            # For PDF/XLSX - trust the file extension for now
+            logger.info(f"✅ {file_ext.upper()} file accepted: {file_name}")
+            return True, "File format recognized"
+            
+        except Exception as e:
+            logger.error(f"Validation error: {str(e)}")
+            return False, f"Validation error: {str(e)}"
 
     def get_ai_diagnostic(self, portfolio):
         if not self.api_key:
@@ -37,12 +99,25 @@ Based strictly on this data, return exactly this JSON structure (nothing else, n
             text = text.replace("```json", "").replace("```", "").strip()
             return json.loads(text)
         except Exception as e:
+            logger.warning(f"Gemini API error: {str(e)}")
             return {
                 "overlap_warnings": ["⚠️ Notice: Possible overlap in top 10 large-cap holdings."],
                 "rebalancing_plan": ["Switch 'Regular' mutual funds to 'Direct' via RTAs to save expense ratio bleed.", "Ensure adequate emergency funds before continuing SIPs."]
             }
 
-    def analyze_statement(self, file_content=None):
+    def analyze_statement(self, file_content=None, file_name=None):
+        logger.info(f"📊 Starting portfolio analysis for file: {file_name}")
+        
+        # Validate file first
+        if file_name:
+            is_valid, validation_msg = self.validate_portfolio_data(file_content, file_name)
+            if not is_valid:
+                logger.error(f"❌ Portfolio validation failed: {validation_msg}")
+                raise ValueError(validation_msg)
+            logger.info(f"✅ File validation successful: {validation_msg}")
+        
+        logger.info(f"🔄 Analyzing portfolio holdings...")
+        
         # Specific mock data for 6 mutual funds across 4 AMCs with 3 large-cap overlapping
         reconstruction = [
             {"fund": "SBI Bluechip Fund (Regular)", "allocation": 25, "category": "Large Cap", "xirr": 14.2, "amc": "SBI"},
@@ -61,7 +136,9 @@ Based strictly on this data, return exactly this JSON structure (nothing else, n
         expense_ratio_avg = 1.35
         drag_10yr = 245000  # Statically modeled loss over 10 years due to fees
         
+        logger.info(f"🤖 Getting AI diagnostics from Gemini...")
         ai_diagnostic = self.get_ai_diagnostic(reconstruction)
+        logger.info(f"✅ AI diagnostic complete: {len(ai_diagnostic.get('overlap_warnings', []))} warnings, {len(ai_diagnostic.get('rebalancing_plan', []))} recommendations")
 
         # Overwrite with specific mock to satisfy requirement if Gemini is not handling it
         if "⚠️ 42% stock overlap" in ai_diagnostic.get("overlap_warnings", [""])[0]:
@@ -78,6 +155,8 @@ Based strictly on this data, return exactly this JSON structure (nothing else, n
             overlap_warnings = ai_diagnostic.get("overlap_warnings", [])
             rebalancing_plan = ai_diagnostic.get("rebalancing_plan", [])
 
+        logger.info(f"📈 Analysis complete. Generated {len(reconstruction)} funds, {len(overlap_warnings)} warnings")
+        
         return {
             "status": "success",
             "message": "CAMS/KFintech Statement parsed successfully.",

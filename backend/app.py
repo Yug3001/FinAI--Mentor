@@ -231,12 +231,28 @@ def life_event():
 
 @app.route("/api/portfolio-xray", methods=["POST"])
 def portfolio_xray():
-    data = request.json
-    file_content = data.get("statement_base64")
-    result = portfolio_agent.analyze_statement(file_content)
-    user_id = get_user_id(data)
-    log_interaction("portfolio_xray", user_id, data, result)
-    return jsonify(result)
+    try:
+        data = request.json
+        file_content = data.get("statement_base64")
+        file_name = data.get("file_name")
+        
+        # Validate file before processing
+        result = portfolio_agent.analyze_statement(file_content, file_name)
+        user_id = get_user_id(data)
+        log_interaction("portfolio_xray", user_id, data, result)
+        return jsonify(result), 200
+    except ValueError as e:
+        logger.warning(f"Portfolio validation error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 400
+    except Exception as e:
+        logger.error(f"Portfolio analysis error: {str(e)}", exc_info=True)
+        return jsonify({
+            "status": "error",
+            "message": "Portfolio analysis failed. Please check your file and try again."
+        }), 500
 
 
 @app.route("/api/chat", methods=["POST"])
