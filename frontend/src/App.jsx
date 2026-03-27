@@ -1,3 +1,4 @@
+import Landing from './components/Landing'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import ChatWidget from './components/ChatWidget'
@@ -15,7 +16,7 @@ import './App.css'
 export const API = 'https://finai-mentor.onrender.com'
 
 const TOOLS = {
-  landing:       null,
+  landing:       Landing,
   'health-score': HealthScoreTool,
   'fire-plan':    FirePlanTool,
   'tax-wizard':   TaxWizardTool,
