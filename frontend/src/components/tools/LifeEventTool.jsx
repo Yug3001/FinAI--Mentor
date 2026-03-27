@@ -77,13 +77,19 @@ const LifeEventTool = () => {
 
         </form>
       ) : (
-        <div>
+        <div className="space-y-4">
 
-          <InputsSummary form={form} fields={Object.keys(form).map(k => ({ key: k, label: k }))} />
+          <InputsSummary form={form} fields={Object.keys(form).map(k => ({ 
+            key: k, 
+            label: k.replace(/_/g, ' ').toUpperCase() 
+          }))} />
 
-          <div>{result.recommendations?.event_tip}</div>
+          <div className="bg-slate-800 p-4 rounded-xl">
+            <h3 className="font-bold mb-2">Recommendation:</h3>
+            <p className="text-white text-sm">{result.recommendations?.event_tip || "No recommendation available"}</p>
+          </div>
 
-          <button onClick={() => setResult(null)} className="mt-4 border px-4 py-2">
+          <button onClick={() => setResult(null)} className="mt-4 border px-4 py-2 rounded hover:bg-slate-700">
             Recalculate
           </button>
 

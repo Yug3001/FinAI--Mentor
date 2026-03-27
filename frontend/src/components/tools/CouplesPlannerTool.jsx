@@ -93,12 +93,34 @@ export default function CouplesPlannerTool({ onBack }) {
         </>
       ) : (
         <>
-          <InputsSummary fields={[
-            { label: 'Partner A Income', value: result._inputs.partner_a.income },
-            { label: 'Partner B Income', value: result._inputs.partner_b.income },
-          ]} />
+          <div className="bg-slate-800 p-4 rounded-xl mb-6">
+            <h3 className="font-bold text-blue-400 mb-3">Partner A Details</h3>
+            <div className="grid grid-cols-2 gap-3 text-sm text-slate-300">
+              <div>Income: ₹{result._inputs.partner_a.income.toLocaleString('en-IN')}</div>
+              <div>Savings: ₹{result._inputs.partner_a.savings.toLocaleString('en-IN')}</div>
+              <div>Net Worth: ₹{result._inputs.partner_a.net_worth.toLocaleString('en-IN')}</div>
+              <div>SIP Target: ₹{result._inputs.partner_a.sip_target.toLocaleString('en-IN')}</div>
+            </div>
+          </div>
 
-          <button onClick={() => setResult(null)} className="mt-6 w-full border py-3 rounded-xl">
+          <div className="bg-slate-800 p-4 rounded-xl mb-6">
+            <h3 className="font-bold text-pink-400 mb-3">Partner B Details</h3>
+            <div className="grid grid-cols-2 gap-3 text-sm text-slate-300">
+              <div>Income: ₹{result._inputs.partner_b.income.toLocaleString('en-IN')}</div>
+              <div>Savings: ₹{result._inputs.partner_b.savings.toLocaleString('en-IN')}</div>
+              <div>Net Worth: ₹{result._inputs.partner_b.net_worth.toLocaleString('en-IN')}</div>
+              <div>SIP Target: ₹{result._inputs.partner_b.sip_target.toLocaleString('en-IN')}</div>
+            </div>
+          </div>
+
+          {result.recommendations && (
+            <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 mb-6">
+              <h3 className="font-bold text-green-400 mb-2">Recommendations</h3>
+              <p className="text-slate-300 text-sm">{result.recommendations}</p>
+            </div>
+          )}
+
+          <button onClick={() => setResult(null)} className="mt-6 w-full border py-3 rounded-xl hover:bg-slate-700">
             Recalculate
           </button>
         </>

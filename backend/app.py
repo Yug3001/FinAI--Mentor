@@ -186,6 +186,33 @@ def tax():
     return jsonify(tax_agent.optimize(data))
 
 
+@app.route("/api/couples-plan", methods=["POST"])
+def couples_plan():
+    data = request.json
+    result = couples_agent.plan(data)
+    user_id = get_user_id(data)
+    log_interaction("couples_plan", user_id, data, result)
+    return jsonify(result)
+
+
+@app.route("/api/life-event", methods=["POST"])
+def life_event():
+    data = request.json
+    result = rec_agent.recommend(data)
+    user_id = get_user_id(data)
+    log_interaction("life_event", user_id, data, result)
+    return jsonify({"recommendations": result})
+
+
+@app.route("/api/portfolio-xray", methods=["POST"])
+def portfolio_xray():
+    data = request.json
+    result = portfolio_agent.analyze(data)
+    user_id = get_user_id(data)
+    log_interaction("portfolio_xray", user_id, data, result)
+    return jsonify(result)
+
+
 @app.route("/api/chat", methods=["POST"])
 def chat():
     data = request.json
