@@ -81,26 +81,42 @@ export default function PortfolioXRayTool() {
         <div className="space-y-6">
 
           <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl p-6">
-            <h3 className="text-lg font-bold text-indigo-400 mb-4">Portfolio Analysis Results</h3>
+            <h3 className="text-lg font-bold text-indigo-400 mb-6">📊 Portfolio X-Ray Results</h3>
             
             {result.metrics && (
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-slate-400 text-sm">True XIRR</p>
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="bg-slate-800/50 p-4 rounded-lg">
+                  <p className="text-slate-400 text-sm mb-1">True XIRR</p>
                   <p className="text-2xl font-bold text-green-400">{(result.metrics.true_xirr_percent || 0).toFixed(2)}%</p>
                 </div>
-                {result.metrics.total_invested && (
-                  <div>
-                    <p className="text-slate-400 text-sm">Total Invested</p>
-                    <p className="text-2xl font-bold">₹{(result.metrics.total_invested || 0).toLocaleString('en-IN')}</p>
+                <div className="bg-slate-800/50 p-4 rounded-lg">
+                  <p className="text-slate-400 text-sm mb-1">vs Nifty 50</p>
+                  <p className="text-2xl font-bold text-blue-400">{(result.metrics.benchmark_xirr_percent || 0).toFixed(2)}%</p>
+                </div>
+                {result.metrics.avg_expense_ratio && (
+                  <div className="bg-slate-800/50 p-4 rounded-lg">
+                    <p className="text-slate-400 text-sm mb-1">Avg Expense Ratio</p>
+                    <p className="text-xl font-bold text-orange-400">{result.metrics.avg_expense_ratio.toFixed(2)}%</p>
                   </div>
                 )}
               </div>
             )}
             
-            {result.analysis && (
-              <div className="mt-4 text-slate-300 text-sm">
-                <p>{result.analysis}</p>
+            {result.overlap_warnings && result.overlap_warnings.length > 0 && (
+              <div className="mb-4">
+                <h4 className="font-semibold text-yellow-400 text-sm mb-2">⚠️ Overlap Warnings:</h4>
+                <ul className="text-slate-300 text-sm space-y-1">
+                  {result.overlap_warnings.map((w, i) => <li key={i}>{w}</li>)}
+                </ul>
+              </div>
+            )}
+            
+            {result.rebalancing_plan && result.rebalancing_plan.length > 0 && (
+              <div>
+                <h4 className="font-semibold text-green-400 text-sm mb-2">✅ Rebalancing Strategy:</h4>
+                <ul className="text-slate-300 text-sm space-y-1">
+                  {result.rebalancing_plan.map((p, i) => <li key={i}>→ {p}</li>)}
+                </ul>
               </div>
             )}
           </div>
@@ -109,7 +125,7 @@ export default function PortfolioXRayTool() {
             onClick={() => setResult(null)}
             className="w-full border border-indigo-500/50 px-4 py-3 rounded hover:bg-slate-700"
           >
-            Analyze Another Portfolio
+            🔄 Analyze Another Portfolio
           </button>
 
         </div>

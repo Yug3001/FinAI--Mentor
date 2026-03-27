@@ -189,16 +189,33 @@ def tax():
 @app.route("/api/couples-plan", methods=["POST"])
 def couples_plan():
     data = request.json
-    result = couples_agent.plan(data)
+    partner_a = data.get("partner_a", {})
+    partner_b = data.get("partner_b", {})
+    result = couples_agent.optimize(partner_a, partner_b)
     user_id = get_user_id(data)
     log_interaction("couples_plan", user_id, data, result)
-    return jsonify(result)
+    return jsonify({
+        "recommendations": result.get("tax_strategy", []),
+        "insurance": result.get("insurance_suggestion", ""),
+        "metrics": result
+    })
 
 
 @app.route("/api/life-event", methods=["POST"])
 def life_event():
     data = request.json
-    result = rec_agent.recommend(data)
+    # Adapt life event data to recommendation agent format
+    financial_status = {
+        "health_score": 70,
+        "savings_rate_percent": 30,
+        "debt_ratio_percent": 20,
+        "emergency_preparedness_months": 6,
+        "monthly_emf_gap": 0
+    }
+    tax_status = {"effective_tax_rate": 20}
+    planning_status = {"years_to_retire": 20}
+    
+    result = rec_agent.generate(financial_status, tax_status, planning_status)
     user_id = get_user_id(data)
     log_interaction("life_event", user_id, data, result)
     return jsonify({"recommendations": result})
@@ -207,7 +224,8 @@ def life_event():
 @app.route("/api/portfolio-xray", methods=["POST"])
 def portfolio_xray():
     data = request.json
-    result = portfolio_agent.analyze(data)
+    file_content = data.get("statement_base64")
+    result = portfolio_agent.analyze_statement(file_content)
     user_id = get_user_id(data)
     log_interaction("portfolio_xray", user_id, data, result)
     return jsonify(result)

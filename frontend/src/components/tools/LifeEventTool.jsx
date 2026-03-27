@@ -2,7 +2,6 @@ import { useState } from 'react'
 import axios from 'axios'
 import { Activity, Loader2, ShieldCheck, ShieldAlert, AlertTriangle } from 'lucide-react'
 import ToolShell from './ToolShell'
-import { InputsSummary } from './HealthScoreTool'
 import { API } from '../../App'
 
 const EVENTS = [
@@ -79,18 +78,36 @@ const LifeEventTool = () => {
       ) : (
         <div className="space-y-4">
 
-          <InputsSummary form={form} fields={Object.keys(form).map(k => ({ 
-            key: k, 
-            label: k.replace(/_/g, ' ').toUpperCase() 
-          }))} />
-
           <div className="bg-slate-800 p-4 rounded-xl">
-            <h3 className="font-bold mb-2">Recommendation:</h3>
-            <p className="text-white text-sm">{result.recommendations?.event_tip || "No recommendation available"}</p>
+            <h3 className="font-bold text-green-400 mb-3">📋 Your Financial Event Analysis</h3>
+            {result.suggestions && result.suggestions.length > 0 && (
+              <div className="mb-4">
+                <h4 className="font-semibold text-green-300 text-sm mb-2">✅ Suggestions:</h4>
+                <ul className="text-slate-300 text-sm space-y-1">
+                  {result.suggestions.map((s, i) => <li key={i}>• {s}</li>)}
+                </ul>
+              </div>
+            )}
+            {result.warnings && result.warnings.length > 0 && (
+              <div className="mb-4">
+                <h4 className="font-semibold text-yellow-400 text-sm mb-2">⚠️ Warnings:</h4>
+                <ul className="text-slate-300 text-sm space-y-1">
+                  {result.warnings.map((w, i) => <li key={i}>• {w}</li>)}
+                </ul>
+              </div>
+            )}
+            {result.improvements && result.improvements.length > 0 && (
+              <div>
+                <h4 className="font-semibold text-blue-300 text-sm mb-2">💡 Improvements:</h4>
+                <ul className="text-slate-300 text-sm space-y-1">
+                  {result.improvements.map((im, i) => <li key={i}>• {im}</li>)}
+                </ul>
+              </div>
+            )}
           </div>
 
           <button onClick={() => setResult(null)} className="mt-4 border px-4 py-2 rounded hover:bg-slate-700">
-            Recalculate
+            🔄 Analyze Another Event
           </button>
 
         </div>
