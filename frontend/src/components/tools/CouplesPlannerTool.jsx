@@ -1,7 +1,112 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import axios from 'axios'
 import { Users, ArrowRight, Loader2, Sparkles, TrendingUp, ShieldAlert, HeartHandshake } from 'lucide-react'
 import { API } from '../../App'
+
+const PartnerInput = ({ title, state, setState, color }) => {
+  const borderColor = color === 'blue' ? '#3b82f6' : '#ec4899'
+  const bgColor = color === 'blue' ? 'rgba(59, 130, 246, 0.05)' : 'rgba(236, 72, 153, 0.05)'
+  const textColor = color === 'blue' ? '#60a5fa' : '#f472b6'
+  
+  return (
+    <div style={{ 
+      padding: '24px', 
+      borderRadius: '24px', 
+      border: `2px solid ${borderColor}30`,
+      backgroundColor: bgColor
+    }}>
+      <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: textColor, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <Users size={20} /> {title}
+      </h3>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div>
+          <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '6px' }}>Income</label>
+          <input 
+            type="text"
+            inputMode="numeric"
+            value={state.income}
+            onChange={e => setState({...state, income: e.target.value})}
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#1e293b',
+              border: '2px solid #475569',
+              borderRadius: '8px',
+              color: '#fff',
+              fontSize: '14px',
+              boxSizing: 'border-box'
+            }}
+            placeholder="Enter income" 
+          />
+        </div>
+
+        <div>
+          <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '6px' }}>Savings</label>
+          <input 
+            type="text"
+            inputMode="numeric"
+            value={state.savings}
+            onChange={e => setState({...state, savings: e.target.value})}
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#1e293b',
+              border: '2px solid #475569',
+              borderRadius: '8px',
+              color: '#fff',
+              fontSize: '14px',
+              boxSizing: 'border-box'
+            }}
+            placeholder="Enter savings" 
+          />
+        </div>
+
+        <div>
+          <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '6px' }}>Net Worth</label>
+          <input 
+            type="text"
+            inputMode="numeric"
+            value={state.net_worth}
+            onChange={e => setState({...state, net_worth: e.target.value})}
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#1e293b',
+              border: '2px solid #475569',
+              borderRadius: '8px',
+              color: '#fff',
+              fontSize: '14px',
+              boxSizing: 'border-box'
+            }}
+            placeholder="Enter net worth" 
+          />
+        </div>
+
+        <div>
+          <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '6px' }}>SIP Target</label>
+          <input 
+            type="text"
+            inputMode="numeric"
+            value={state.sip_target}
+            onChange={e => setState({...state, sip_target: e.target.value})}
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#1e293b',
+              border: '2px solid #475569',
+              borderRadius: '8px',
+              color: '#fff',
+              fontSize: '14px',
+              boxSizing: 'border-box'
+            }}
+            placeholder="Enter SIP target" 
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function CouplesPlannerTool({ onBack }) {
   const [partnerA, setPartnerA] = useState({ income: '500000', savings: '100000', net_worth: '800000', sip_target: '50000' })
@@ -49,103 +154,6 @@ export default function CouplesPlannerTool({ onBack }) {
     } finally {
       setLoading(false)
     }
-  }
-
-  const PartnerInput = ({ title, state, setState, color, icon: Icon }) => {
-    const borderColor = color === 'blue' ? '#3b82f6' : '#ec4899'
-    const bgColor = color === 'blue' ? 'rgba(59, 130, 246, 0.05)' : 'rgba(236, 72, 153, 0.05)'
-    const textColor = color === 'blue' ? '#60a5fa' : '#f472b6'
-    
-    return (
-      <div style={{ 
-        padding: '24px', 
-        borderRadius: '24px', 
-        border: `2px solid ${borderColor}30`,
-        backgroundColor: bgColor
-      }}>
-        <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: textColor, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Users size={20} /> {title}
-        </h3>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div>
-            <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '6px' }}>Income</label>
-            <input 
-              type="number" 
-              value={state.income}
-              onChange={e => setState({...state, income: e.target.value})}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                backgroundColor: '#1e293b',
-                border: '1px solid #475569',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '14px'
-              }}
-              placeholder="Enter income" 
-            />
-          </div>
-
-          <div>
-            <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '6px' }}>Savings</label>
-            <input 
-              type="number" 
-              value={state.savings}
-              onChange={e => setState({...state, savings: e.target.value})}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                backgroundColor: '#1e293b',
-                border: '1px solid #475569',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '14px'
-              }}
-              placeholder="Enter savings" 
-            />
-          </div>
-
-          <div>
-            <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '6px' }}>Net Worth</label>
-            <input 
-              type="number" 
-              value={state.net_worth}
-              onChange={e => setState({...state, net_worth: e.target.value})}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                backgroundColor: '#1e293b',
-                border: '1px solid #475569',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '14px'
-              }}
-              placeholder="Enter net worth" 
-            />
-          </div>
-
-          <div>
-            <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '6px' }}>SIP Target</label>
-            <input 
-              type="number" 
-              value={state.sip_target}
-              onChange={e => setState({...state, sip_target: e.target.value})}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                backgroundColor: '#1e293b',
-                border: '1px solid #475569',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '14px'
-              }}
-              placeholder="Enter SIP target" 
-            />
-          </div>
-        </div>
-      </div>
-    )
   }
 
   return (

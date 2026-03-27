@@ -188,17 +188,25 @@ def tax():
 
 @app.route("/api/couples-plan", methods=["POST"])
 def couples_plan():
-    data = request.json
-    partner_a = data.get("partner_a", {})
-    partner_b = data.get("partner_b", {})
-    result = couples_agent.optimize(partner_a, partner_b)
-    user_id = get_user_id(data)
-    log_interaction("couples_plan", user_id, data, result)
-    return jsonify({
-        "recommendations": result.get("tax_strategy", []),
-        "insurance": result.get("insurance_suggestion", ""),
-        "metrics": result
-    })
+    try:
+        data = request.json
+        partner_a = data.get("partner_a", {})
+        partner_b = data.get("partner_b", {})
+        
+        logger.info(f"Couples plan request: {partner_a}, {partner_b}")
+        result = couples_agent.optimize(partner_a, partner_b)
+        logger.info(f"Couples plan result: {result}")
+        
+        user_id = get_user_id(data)
+        log_interaction("couples_plan", user_id, data, result)
+        return jsonify({
+            "recommendations": result.get("tax_strategy", []),
+            "insurance": result.get("insurance_suggestion", ""),
+            "metrics": result
+        })
+    except Exception as e:
+        logger.error(f"Couples plan error: {str(e)}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/life-event", methods=["POST"])
