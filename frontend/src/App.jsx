@@ -10,13 +10,12 @@ import PortfolioXRayTool from './components/tools/PortfolioXRayTool'
 import HealthScoreTool from './components/tools/HealthScoreTool'
 import FirePlanTool from './components/tools/FirePlanTool'
 import Auth from './components/Auth'
-import { BrainCircuit, ArrowLeft, Sparkles, LogOut, User, ShieldAlert } from 'lucide-react'
+import { BrainCircuit, ArrowLeft, LogOut, User } from 'lucide-react'
 import './App.css'
 
 export const API = 'https://finai-mentor.onrender.com'
 
 const TOOLS = {
-  landing: Landing,
   'health-score': HealthScoreTool,
   'fire-plan': FirePlanTool,
   'tax-wizard': TaxWizardTool,
@@ -35,7 +34,6 @@ function App() {
     return saved ? JSON.parse(saved) : null
   })
 
-  // ✅ Backend health check
   useEffect(() => {
     axios.get(`${API}/health`, { timeout: 3000 })
       .then(() => setBackendOk(true))
@@ -93,8 +91,8 @@ function App() {
     return <Auth onLogin={handleLogin} apiBase={API} />
   }
 
-  // ✅ SAFE COMPONENT RENDERING
-  const ToolComponent = TOOLS[activeTool]
+  // ✅ FIXED: Landing handled separately
+  const ToolComponent = activeTool === 'landing' ? null : TOOLS[activeTool]
 
   return (
     <div className="min-h-screen bg-[#080c18] text-slate-100">
@@ -143,7 +141,6 @@ function App() {
       {/* MAIN */}
       <main className="pt-20 px-6">
 
-        {/* ✅ SAFE RENDER */}
         {ToolComponent ? (
           <ToolComponent
             apiBase={API}
@@ -159,7 +156,6 @@ function App() {
 
       </main>
 
-      {/* CHAT */}
       <ChatWidget apiBase={API} />
 
     </div>
