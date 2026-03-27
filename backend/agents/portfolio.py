@@ -105,6 +105,37 @@ Based strictly on this data, return exactly this JSON structure (nothing else, n
                 "rebalancing_plan": ["Switch 'Regular' mutual funds to 'Direct' via RTAs to save expense ratio bleed.", "Ensure adequate emergency funds before continuing SIPs."]
             }
 
+    def validate_response_structure(self, response_dict):
+        """Validate response structure before returning to frontend"""
+        required_top_level = ['status', 'message', 'portfolio', 'metrics', 'overlap_analysis', 'rebalancing_plan']
+        for field in required_top_level:
+            if field not in response_dict:
+                logger.error(f"❌ Missing required field in response: {field}")
+                raise ValueError(f"Response validation failed: missing {field}")
+        
+        # Validate metrics structure
+        required_metrics = ['true_xirr_percent', 'benchmark_xirr_percent', 'avg_expense_ratio', 'outperformance', 'projected_expense_drag_10yr']
+        for field in required_metrics:
+            if field not in response_dict['metrics']:
+                logger.error(f"❌ Missing metric: {field}")
+                raise ValueError(f"Response validation failed: missing metric {field}")
+        
+        # Validate portfolio is non-empty array
+        if not isinstance(response_dict['portfolio'], list) or len(response_dict['portfolio']) == 0:
+            logger.error(f"❌ Portfolio is empty or invalid type")
+            raise ValueError("Portfolio validation failed: empty or invalid portfolio data")
+        
+        # Validate each portfolio item
+        for i, fund in enumerate(response_dict['portfolio']):
+            required_fund_fields = ['fund', 'allocation', 'category', 'xirr', 'amc']
+            for field in required_fund_fields:
+                if field not in fund:
+                    logger.error(f"❌ Fund {i} missing field: {field}")
+                    raise ValueError(f"Portfolio item {i} missing required field: {field}")
+        
+        logger.info(f"✅ Response structure validated successfully")
+        return True
+
     def analyze_statement(self, file_content=None, file_name=None):
         logger.info(f"📊 Starting portfolio analysis for file: {file_name}")
         
@@ -157,7 +188,7 @@ Based strictly on this data, return exactly this JSON structure (nothing else, n
 
         logger.info(f"📈 Analysis complete. Generated {len(reconstruction)} funds, {len(overlap_warnings)} warnings")
         
-        return {
+        response = {
             "status": "success",
             "message": "CAMS/KFintech Statement parsed successfully.",
             "portfolio": reconstruction,
@@ -171,3 +202,13 @@ Based strictly on this data, return exactly this JSON structure (nothing else, n
             "overlap_analysis": overlap_warnings,
             "rebalancing_plan": rebalancing_plan
         }
+        
+        # Validate response before returning
+        try:
+            self.validate_response_structure(response)
+            logger.info(f"✅ Response passed all validation checks")
+        except ValueError as e:
+            logger.error(f"❌ Response validation failed: {str(e)}")
+            raise
+        
+        return response

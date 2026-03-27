@@ -82,6 +82,58 @@ export default function PortfolioXRayTool() {
     }
   }
 
+  const validateResponse = (data) => {
+    // Comprehensive validation of backend response
+    if (!data) {
+      return { valid: false, error: "Empty response from server" }
+    }
+
+    // Check status
+    if (data.status === "error") {
+      return { valid: false, error: data.message || "Server error" }
+    }
+
+    // Check required fields
+    if (!data.metrics || typeof data.metrics !== 'object') {
+      return { valid: false, error: "Invalid metrics in response" }
+    }
+
+    if (!data.portfolio || !Array.isArray(data.portfolio) || data.portfolio.length === 0) {
+      return { valid: false, error: "No portfolio data found in response" }
+    }
+
+    // Check metrics required fields
+    const requiredMetrics = ['true_xirr_percent', 'benchmark_xirr_percent', 'avg_expense_ratio']
+    for (const field of requiredMetrics) {
+      if (data.metrics[field] === undefined || data.metrics[field] === null) {
+        return { valid: false, error: `Missing metric: ${field}` }
+      }
+      if (typeof data.metrics[field] !== 'number') {
+        return { valid: false, error: `Invalid metric type for ${field}` }
+      }
+    }
+
+    // Validate portfolio items
+    for (const fund of data.portfolio) {
+      if (!fund.fund || !fund.allocation || !fund.category) {
+        return { valid: false, error: "Invalid portfolio fund structure" }
+      }
+      if (typeof fund.allocation !== 'number' || fund.allocation < 0 || fund.allocation > 100) {
+        return { valid: false, error: `Invalid allocation for ${fund.fund}` }
+      }
+    }
+
+    // Check overlap_analysis and rebalancing_plan
+    if (!Array.isArray(data.overlap_analysis)) {
+      return { valid: false, error: "Invalid overlap analysis format" }
+    }
+    if (!Array.isArray(data.rebalancing_plan)) {
+      return { valid: false, error: "Invalid rebalancing plan format" }
+    }
+
+    return { valid: true }
+  }
+
   const handleUpload = async () => {
     if (!file) {
       setError("❌ Please select a file to upload")
@@ -97,6 +149,12 @@ export default function PortfolioXRayTool() {
       reader.onload = async (e) => {
         try {
           const base64 = e.target.result.split(',')[1]
+          if (!base64) {
+            setError("❌ Failed to convert file. Please try again.")
+            setLoading(false)
+            return
+          }
+
           const payload = { 
             statement_base64: base64,
             file_name: file.name,
@@ -108,31 +166,44 @@ export default function PortfolioXRayTool() {
             timeout: 30000
           })
           
-          // Check if request was successful
-          if (data.status === "error") {
-            setError(`❌ ${data.message}`)
+          console.log("📨 Response received:", data)
+
+          // Comprehensive response validation
+          const validation = validateResponse(data)
+          if (!validation.valid) {
+            console.error("❌ Response validation failed:", validation.error)
+            setError(`❌ ${validation.error}`)
             setLoading(false)
             return
           }
           
-          // Validate response has expected fields
-          if (!data.metrics || !data.portfolio) {
-            setError("❌ Invalid response from server. The file might not be a valid portfolio statement.")
-            setLoading(false)
-            return
-          }
-          
-          console.log("✅ Analysis complete")
+          console.log("✅ Analysis complete and validated")
           setResult(data)
         } catch (err) {
-          console.error("Upload error:", err)
-          // Handle validation error from backend
-          if (err.response?.status === 400 && err.response?.data?.message) {
-            setError(`❌ ${err.response.data.message}`)
-          } else if (err.response?.data?.error) {
-            setError(`❌ ${err.response.data.error}`)
-          } else if (err.message === "timeout of 30000ms exceeded") {
+          console.error("❌ Upload error:", err)
+          
+          // Handle network errors
+          if (err.code === 'ECONNABORTED') {
             setError("❌ Analysis took too long. The file might be too large or complex.")
+          }
+          // Handle validation error from backend (400)
+          else if (err.response?.status === 400) {
+            const msg = err.response?.data?.message || "Invalid file validation"
+            console.warn(`📋 Backend validation: ${msg}`)
+            setError(`❌ ${msg}`)
+          }
+          // Handle server error (500)
+          else if (err.response?.status === 500) {
+            console.error("🔴 Server error:", err.response?.data)
+            setError("❌ Server error. Please try again with a different file.")
+          }
+          // Handle other HTTP errors
+          else if (err.response?.data?.message) {
+            setError(`❌ ${err.response.data.message}`)
+          } else if (err.message === "timeout of 30000ms exceeded") {
+            setError("❌ Request timeout. Please try with a smaller file.")
+          } else if (!err.response) {
+            setError("❌ Network error. Please check your connection.")
           } else {
             setError("❌ Failed to process portfolio statement. Please ensure it's a valid mutual fund statement.")
           }
@@ -142,7 +213,7 @@ export default function PortfolioXRayTool() {
       }
       reader.readAsDataURL(file)
     } catch (err) {
-      console.error("File read error:", err)
+      console.error("❌ File read error:", err)
       setError("❌ Failed to read file. Please try again.")
       setLoading(false)
     }

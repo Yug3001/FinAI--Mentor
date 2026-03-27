@@ -236,19 +236,45 @@ def portfolio_xray():
         file_content = data.get("statement_base64")
         file_name = data.get("file_name")
         
-        # Validate file before processing
+        # Validate input
+        if not file_content:
+            logger.warning("Portfolio upload: missing file content")
+            return jsonify({
+                "status": "error",
+                "message": "No file content provided"
+            }), 400
+        
+        if not file_name:
+            logger.warning("Portfolio upload: missing file name")
+            return jsonify({
+                "status": "error",
+                "message": "File name is required"
+            }), 400
+        
+        logger.info(f"🔍 Processing portfolio file: {file_name}")
+        
+        # Validate file and process
         result = portfolio_agent.analyze_statement(file_content, file_name)
+        
+        # Log successful interaction
         user_id = get_user_id(data)
         log_interaction("portfolio_xray", user_id, data, result)
+        
+        logger.info(f"✅ Portfolio analysis successful for {file_name}")
         return jsonify(result), 200
+        
     except ValueError as e:
-        logger.warning(f"Portfolio validation error: {str(e)}")
+        # File validation error (user error)
+        error_msg = str(e)
+        logger.warning(f"📋 Portfolio validation error: {error_msg}")
         return jsonify({
             "status": "error",
-            "message": str(e)
+            "message": error_msg
         }), 400
+        
     except Exception as e:
-        logger.error(f"Portfolio analysis error: {str(e)}", exc_info=True)
+        # Unexpected server error
+        logger.error(f"🔴 Portfolio analysis error: {str(e)}", exc_info=True)
         return jsonify({
             "status": "error",
             "message": "Portfolio analysis failed. Please check your file and try again."
