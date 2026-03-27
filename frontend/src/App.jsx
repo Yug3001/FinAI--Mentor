@@ -6,11 +6,13 @@ import LifeEventTool from './components/tools/LifeEventTool'
 import FullAnalysisTool from './components/tools/FullAnalysisTool'
 import CouplesPlannerTool from './components/tools/CouplesPlannerTool'
 import PortfolioXRayTool from './components/tools/PortfolioXRayTool'
+import HealthScoreTool from './components/tools/HealthScoreTool'
+import FirePlanTool from './components/tools/FirePlanTool'
 import Auth from './components/Auth'
 import { BrainCircuit, ArrowLeft, Sparkles, LogOut, User, ShieldAlert } from 'lucide-react'
 import './App.css'
 
-export const API = 'http://localhost:5000'
+export const API = 'https://finai-mentor.onrender.com'
 
 const TOOLS = {
   landing:       null,
