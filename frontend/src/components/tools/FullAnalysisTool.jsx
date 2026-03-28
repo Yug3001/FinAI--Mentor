@@ -58,21 +58,48 @@ const FullAnalysisTool = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
             <div className="space-y-4">
-              <input type="number" value={form.monthly_income} onChange={e => set('monthly_income', e.target.value)} className="input" placeholder="Monthly Income" />
-              <input type="number" value={form.monthly_expenses} onChange={e => set('monthly_expenses', e.target.value)} className="input" placeholder="Monthly Expenses" />
-              <input type="number" value={form.total_debt} onChange={e => set('total_debt', e.target.value)} className="input" placeholder="Total Debt" />
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-300">Monthly Income</label>
+                <input type="number" value={form.monthly_income} onChange={e => set('monthly_income', e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white" placeholder="₹0" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-300">Monthly Expenses</label>
+                <input type="number" value={form.monthly_expenses} onChange={e => set('monthly_expenses', e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white" placeholder="₹0" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-300">Total Debt</label>
+                <input type="number" value={form.total_debt} onChange={e => set('total_debt', e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white" placeholder="₹0" />
+              </div>
             </div>
 
             <div className="space-y-4">
-              <input type="number" value={form.total_investments} onChange={e => set('total_investments', e.target.value)} className="input" placeholder="Investments" />
-              <input type="number" value={form.emergency_fund} onChange={e => set('emergency_fund', e.target.value)} className="input" placeholder="Emergency Fund" />
-              <input type="number" value={form.retirement_target} onChange={e => set('retirement_target', e.target.value)} className="input" placeholder="Retirement Target" />
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-300">Total Investments</label>
+                <input type="number" value={form.total_investments} onChange={e => set('total_investments', e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white" placeholder="₹0" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-300">Emergency Fund</label>
+                <input type="number" value={form.emergency_fund} onChange={e => set('emergency_fund', e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white" placeholder="₹0" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-300">Retirement Target</label>
+                <input type="number" value={form.retirement_target} onChange={e => set('retirement_target', e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white" placeholder="₹0" />
+              </div>
             </div>
 
             <div className="space-y-4">
-              <input type="number" value={form.annual_income} onChange={e => set('annual_income', e.target.value)} className="input" placeholder="Annual Income" />
-              <input type="number" value={form.deduction_80c} onChange={e => set('deduction_80c', e.target.value)} className="input" placeholder="80C" />
-              <input type="number" value={form.deduction_80d} onChange={e => set('deduction_80d', e.target.value)} className="input" placeholder="80D" />
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-300">Annual Income</label>
+                <input type="number" value={form.annual_income} onChange={e => set('annual_income', e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white" placeholder="₹0" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-300">Section 80C Deduction</label>
+                <input type="number" value={form.deduction_80c} onChange={e => set('deduction_80c', e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white" placeholder="₹0" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-300">Section 80D (Medical)</label>
+                <input type="number" value={form.deduction_80d} onChange={e => set('deduction_80d', e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white" placeholder="₹0" />
+              </div>
             </div>
 
           </div>

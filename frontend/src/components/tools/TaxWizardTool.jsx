@@ -54,18 +54,20 @@ const TaxWizardTool = () => {
         <form onSubmit={run} className="space-y-4">
 
           {FIELDS.map(f => (
-            <input
-              key={f.key}
-              type="number"
-              value={form[f.key]}
-              onChange={e => set(f.key, e.target.value)}
-              className="w-full p-2 border rounded"
-              placeholder={f.label}
-            />
+            <div key={f.key} className="space-y-2">
+              <label className="block text-sm font-medium text-slate-300">{f.label}</label>
+              <input
+                type="number"
+                value={form[f.key]}
+                onChange={e => set(f.key, e.target.value)}
+                className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder:text-slate-500"
+                placeholder={`Enter ${f.label.toLowerCase()}`}
+              />
+            </div>
           ))}
 
-          <button type="submit" className="w-full py-3 bg-purple-600 text-white rounded">
-            {loading ? <Loader2 className="animate-spin" /> : 'Calculate Tax'}
+          <button type="submit" className="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-semibold transition-colors">
+            {loading ? <Loader2 className="animate-spin inline mr-2" /> : '💰 Calculate Tax'}
           </button>
 
         </form>

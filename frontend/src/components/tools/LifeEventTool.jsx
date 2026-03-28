@@ -58,18 +58,34 @@ const LifeEventTool = () => {
           ))}
         </div>
       ) : !result ? (
-        <form onSubmit={run} className="space-y-4">
+        <form onSubmit={run} className="space-y-6">
 
-          {Object.keys(form).map(k => (
-            <input
-              key={k}
-              type="number"
-              value={form[k]}
-              onChange={e => set(k, e.target.value)}
-              className="w-full p-2 border rounded"
-              placeholder={k}
-            />
-          ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-slate-300">Monthly Income</label>
+              <input type="number" value={form.monthly_income} onChange={e => set('monthly_income', e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white" placeholder="₹0" />
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-slate-300">Monthly Expenses</label>
+              <input type="number" value={form.monthly_expenses} onChange={e => set('monthly_expenses', e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white" placeholder="₹0" />
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-slate-300">Total Debt</label>
+              <input type="number" value={form.total_debt} onChange={e => set('total_debt', e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white" placeholder="₹0" />
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-slate-300">Total Investments</label>
+              <input type="number" value={form.total_investments} onChange={e => set('total_investments', e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white" placeholder="₹0" />
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-slate-300">Annual Income</label>
+              <input type="number" value={form.annual_income} onChange={e => set('annual_income', e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white" placeholder="₹0" />
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-slate-300">Retirement Target</label>
+              <input type="number" value={form.retirement_target} onChange={e => set('retirement_target', e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white" placeholder="₹0" />
+            </div>
+          </div>
 
           <button type="submit" className="w-full py-3 bg-green-600 text-white rounded">
             {loading ? <Loader2 className="animate-spin" /> : 'Get Advice'}

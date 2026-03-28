@@ -301,9 +301,17 @@ def download_health_score_pdf():
         input_data = data.get("input_data")
         
         if not result or not input_data:
+            logger.warning(f"Health Score PDF: Missing data - result: {bool(result)}, input_data: {bool(input_data)}")
             return jsonify({"error": "Missing result or input data"}), 400
         
+        logger.info(f"Generating Health Score PDF with result keys: {list(result.keys())}")
         pdf_buffer = pdf_generator.generate_health_score_pdf(result, input_data)
+        
+        if not pdf_buffer or pdf_buffer.getbuffer().nbytes == 0:
+            logger.error("Health Score PDF: Buffer is empty after generation")
+            return jsonify({"error": "Failed to generate PDF - empty buffer"}), 500
+        
+        pdf_buffer.seek(0)
         return send_file(
             pdf_buffer,
             mimetype='application/pdf',
@@ -312,7 +320,7 @@ def download_health_score_pdf():
         )
     except Exception as e:
         logger.error(f"Health Score PDF error: {str(e)}", exc_info=True)
-        return jsonify({"error": "Failed to generate PDF"}), 500
+        return jsonify({"error": f"Failed to generate PDF: {str(e)}"}), 500
 
 
 @app.route("/api/download/fire-plan-pdf", methods=["POST"])
