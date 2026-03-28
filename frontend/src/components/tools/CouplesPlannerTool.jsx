@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react'
 import axios from 'axios'
-import { Users, ArrowRight, Loader2, Sparkles, TrendingUp, ShieldAlert, HeartHandshake } from 'lucide-react'
+import { Users, ArrowRight, Loader2, Sparkles, TrendingUp, ShieldAlert, HeartHandshake, Download } from 'lucide-react'
 import { API } from '../../App'
+import { downloadPDF } from '../../utils/pdfDownload'
 
 const PartnerInput = ({ title, state, setState, color }) => {
   const borderColor = color === 'blue' ? '#3b82f6' : '#ec4899'
@@ -220,22 +221,50 @@ export default function CouplesPlannerTool({ onBack }) {
             </div>
           )}
 
-          <button
-            onClick={() => setResult(null)}
-            style={{
-              marginTop: '24px',
-              width: '100%',
-              padding: '12px',
-              border: '1px solid #475569',
-              backgroundColor: 'transparent',
-              color: '#cbd5e1',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '14px'
-            }}
-          >
-            🔄 Recalculate
-          </button>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button
+              onClick={() => downloadPDF(
+                `${API}/api/download/couples-plan-pdf`,
+                { result, partner_a: partnerA, partner_b: partnerB },
+                'FinAI_Couples_Plan_Report.pdf'
+              )}
+              style={{
+                flex: 1,
+                marginTop: '24px',
+                padding: '12px',
+                backgroundColor: '#ec4899',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                fontWeight: 'bold'
+              }}
+            >
+              📥 Download Report
+            </button>
+            <button
+              onClick={() => setResult(null)}
+              style={{
+                flex: 1,
+                marginTop: '24px',
+                padding: '12px',
+                border: '1px solid #475569',
+                backgroundColor: 'transparent',
+                color: '#cbd5e1',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: 'bold'
+              }}
+            >
+              🔄 Recalculate
+            </button>
+          </div>
         </>
       )}
 

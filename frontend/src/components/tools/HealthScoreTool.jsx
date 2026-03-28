@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import axios from 'axios'
-import { Heart, Loader2, ShieldCheck, AlertTriangle, Wallet, Info } from 'lucide-react'
+import { Heart, Loader2, Download } from 'lucide-react'
 import ToolShell from './ToolShell'
 import { API } from '../../App'
+import { downloadPDF } from '../../utils/pdfDownload'
 
 const FIELDS = [
   { key: 'monthly_income', label: 'Monthly Income', def: 120000 },
@@ -66,14 +67,33 @@ const HealthScoreTool = () => {
           </button>
         </form>
       ) : (
-        <div>
+        <div className="space-y-6">
           <InputsSummary form={form} fields={FIELDS} />
 
-          <div>Score: {result.health_score}</div>
+          <div className="glass-card rounded-2xl p-6 border border-white/5">
+            <div className="text-center">
+              <p className="text-slate-400 text-sm mb-2">Overall Health Score</p>
+              <p className="text-4xl font-bold text-white font-mono-custom">{result.health_score}/100</p>
+              <p className="text-emerald-400 font-semibold mt-1">{result.grade}</p>
+            </div>
+          </div>
 
-          <button onClick={() => setResult(null)} className="mt-4 border px-4 py-2">
-            Recalculate
-          </button>
+          <div className="flex gap-3">
+            <button 
+              onClick={() => downloadPDF(
+                `${API}/api/download/health-score-pdf`,
+                { result, input_data: form },
+                'FinAI_Health_Score_Report.pdf'
+              )}
+              className="flex-1 flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-colors"
+            >
+              <Download size={18} />
+              Download Report
+            </button>
+            <button onClick={() => setResult(null)} className="flex-1 border border-slate-700 hover:border-slate-500 px-4 py-3 rounded-xl text-slate-300 transition-colors">
+              Recalculate
+            </button>
+          </div>
         </div>
       )}
     </ToolShell>

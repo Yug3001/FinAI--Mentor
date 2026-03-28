@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import axios from 'axios'
-import { FileText, Loader2 } from 'lucide-react'
+import { FileText, Loader2, Download } from 'lucide-react'
 import ToolShell from './ToolShell'
 import { InputsSummary } from './HealthScoreTool'
 import { API } from '../../App'
+import { downloadPDF } from '../../utils/pdfDownload'
 
 const FIELDS = [
   { key: 'annual_income', label: 'Annual Gross Income' },
@@ -69,16 +70,42 @@ const TaxWizardTool = () => {
 
         </form>
       ) : (
-        <div>
-
+        <div className="space-y-6">
           <InputsSummary form={form} fields={FIELDS} />
 
-          <div>Best Regime: {result.better_regime}</div>
+          <div className="glass-card rounded-2xl p-6 border border-white/5">
+            <p className="text-slate-400 text-sm mb-2">Best Tax Regime</p>
+            <p className="text-3xl font-bold text-white font-mono-custom">{result.better_regime} Regime</p>
+            <p className="text-sm text-emerald-400 mt-2">Annual Savings: ₹{(result.savings_with_better || 0).toLocaleString('en-IN')}</p>
+          </div>
 
-          <button onClick={() => setResult(null)} className="mt-4 border px-4 py-2">
-            Recalculate
-          </button>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-slate-800/40 border border-slate-700/50 rounded-xl p-4">
+              <p className="text-slate-400 text-xs mb-1">Old Regime Tax</p>
+              <p className="text-xl font-bold text-red-400">₹{(result.old_tax || 0).toLocaleString('en-IN')}</p>
+            </div>
+            <div className="bg-slate-800/40 border border-slate-700/50 rounded-xl p-4">
+              <p className="text-slate-400 text-xs mb-1">New Regime Tax</p>
+              <p className="text-xl font-bold text-emerald-400">₹{(result.new_tax || 0).toLocaleString('en-IN')}</p>
+            </div>
+          </div>
 
+          <div className="flex gap-3">
+            <button 
+              onClick={() => downloadPDF(
+                `${API}/api/download/tax-plan-pdf`,
+                { result, input_data: form },
+                'FinAI_Tax_Plan_Report.pdf'
+              )}
+              className="flex-1 flex items-center justify-center gap-2 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl transition-colors"
+            >
+              <Download size={18} />
+              Download Report
+            </button>
+            <button onClick={() => setResult(null)} className="flex-1 border border-slate-700 hover:border-slate-500 px-4 py-3 rounded-xl text-slate-300 transition-colors">
+              Recalculate
+            </button>
+          </div>
         </div>
       )}
 

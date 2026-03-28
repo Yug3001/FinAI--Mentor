@@ -271,10 +271,10 @@ const Dashboard = ({ data, onReset }) => {
               AI Synthesized Advice
             </h3>
             <div className="space-y-3 relative">
-              {recommendations.suggestions.map((m, i) => <InsightBadge key={i} msg={m} type="success" />)}
-              {recommendations.warnings.map((m, i)   => <InsightBadge key={i} msg={m} type="warning" />)}
-              {recommendations.improvements.map((m, i)=> <InsightBadge key={i} msg={m} type="improve" />)}
-              {!recommendations.suggestions.length && !recommendations.warnings.length && !recommendations.improvements.length && (
+              {recommendations?.suggestions?.map((m, i) => <InsightBadge key={i} msg={m} type="success" />)}
+              {recommendations?.warnings?.map((m, i)   => <InsightBadge key={i} msg={m} type="warning" />)}
+              {recommendations?.improvements?.map((m, i)=> <InsightBadge key={i} msg={m} type="improve" />)}
+              {!recommendations?.suggestions?.length && !recommendations?.warnings?.length && !recommendations?.improvements?.length && (
                 <p className="text-slate-500 text-sm text-center py-4">No insights generated yet.</p>
               )}
             </div>

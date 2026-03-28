@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import axios from 'axios'
-import { TrendingUp, Loader2 } from 'lucide-react'
+import { TrendingUp, Loader2, Download } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import ToolShell from './ToolShell'
 import { InputsSummary } from './HealthScoreTool'
 import { API } from '../../App'
+import { downloadPDF } from '../../utils/pdfDownload'
 
 const fmt = (n) => Number(n || 0).toLocaleString('en-IN')
 
@@ -88,13 +89,15 @@ const FirePlanTool = () => {
         <div className="space-y-6">
           <InputsSummary form={form} fields={FIELDS} />
 
-          <div className="text-white">
-            Target Corpus: ₹{fmt(fire.target_corpus)}
+          <div className="glass-card rounded-2xl p-6 border border-white/5">
+            <p className="text-slate-400 text-sm mb-2">Target Corpus to Achieve FIRE</p>
+            <p className="text-3xl font-bold text-white font-mono-custom">₹{(fire.target_corpus / 100000).toFixed(2)}L</p>
+            <p className="text-sm text-slate-400 mt-2">Monthly SIP Required: ₹{(fire.monthly_sip_required || 0).toLocaleString('en-IN')}</p>
           </div>
 
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={fire.year_by_year}>
+              <AreaChart data={fire.year_by_year || []}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="year" />
                 <YAxis />
@@ -104,9 +107,22 @@ const FirePlanTool = () => {
             </ResponsiveContainer>
           </div>
 
-          <button onClick={() => setResult(null)} className="border px-4 py-2 rounded-xl">
-            Recalculate
-          </button>
+          <div className="flex gap-3">
+            <button 
+              onClick={() => downloadPDF(
+                `${API}/api/download/fire-plan-pdf`,
+                { result, input_data: form },
+                'FinAI_FIRE_Plan_Report.pdf'
+              )}
+              className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-colors"
+            >
+              <Download size={18} />
+              Download Report
+            </button>
+            <button onClick={() => setResult(null)} className="flex-1 border border-slate-700 hover:border-slate-500 px-4 py-3 rounded-xl text-slate-300 transition-colors">
+              Recalculate
+            </button>
+          </div>
         </div>
       )}
     </ToolShell>

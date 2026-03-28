@@ -5,3 +5,5 @@ pymongo
 certifi
 gunicorn
 google-generativeai
+reportlab
+Pillow

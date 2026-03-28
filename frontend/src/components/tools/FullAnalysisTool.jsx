@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import axios from 'axios'
-import { LayoutGrid, Loader2 } from 'lucide-react'
+import { LayoutGrid, Loader2, Download } from 'lucide-react'
 import ToolShell from './ToolShell'
 import Dashboard from '../Dashboard'
 import { API } from '../../App'
+import { downloadPDF } from '../../utils/pdfDownload'
 
 const FullAnalysisTool = () => {
   const [form, setForm] = useState({
@@ -82,7 +83,20 @@ const FullAnalysisTool = () => {
 
         </form>
       ) : (
-        <Dashboard data={result} onReset={() => setResult(null)} />
+        <>
+          <button
+            onClick={() => downloadPDF(
+              `${API}/api/download/full-analysis-pdf`,
+              { data: result },
+              'FinAI_Complete_Analysis_Report.pdf'
+            )}
+            className="mb-6 flex items-center justify-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-500 text-white rounded-xl transition-colors font-semibold"
+          >
+            <Download size={18} />
+            Download Full Report
+          </button>
+          <Dashboard data={result} onReset={() => setResult(null)} />
+        </>
       )}
     </ToolShell>
   )

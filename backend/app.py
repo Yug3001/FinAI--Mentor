@@ -1,6 +1,6 @@
 import os
 import logging
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -47,6 +47,7 @@ from agents.tax import TaxAgent
 from agents.recommendation import RecommendationAgent
 from agents.couples import CouplesAgent
 from agents.portfolio import PortfolioAgent
+from pdf_generator import FinAIPDFGenerator
 from werkzeug.security import generate_password_hash, check_password_hash
 
 orchestrator  = OrchestratorAgent()
@@ -57,6 +58,7 @@ tax_agent     = TaxAgent()
 rec_agent     = RecommendationAgent()
 couples_agent = CouplesAgent()
 portfolio_agent = PortfolioAgent()
+pdf_generator = FinAIPDFGenerator()
 
 import datetime
 
@@ -177,7 +179,7 @@ def fire_plan():
     fin = fin_agent.analyze(data)
     tax = tax_agent.optimize(data)
     plan = plan_agent.plan(data, fin, tax)
-    return jsonify({"financial": fin, "plan": plan})
+    return jsonify({"financial_health": fin, "tax_optimization": tax, "fire_plan": plan})
 
 
 @app.route("/api/tax", methods=["POST"])
@@ -284,7 +286,143 @@ def portfolio_xray():
 @app.route("/api/chat", methods=["POST"])
 def chat():
     data = request.json
-    return jsonify({"response": chat_agent.respond(data.get("message", ""))})
+    # Get context from request or use empty dict as fallback
+    context = data.get("context", "")
+    return jsonify({"response": chat_agent.respond(data.get("message", ""), context)})
+
+
+# ─── PDF Download Endpoints ──────────────────────────────────────────
+
+@app.route("/api/download/health-score-pdf", methods=["POST"])
+def download_health_score_pdf():
+    try:
+        data = request.json
+        result = data.get("result")
+        input_data = data.get("input_data")
+        
+        if not result or not input_data:
+            return jsonify({"error": "Missing result or input data"}), 400
+        
+        pdf_buffer = pdf_generator.generate_health_score_pdf(result, input_data)
+        return send_file(
+            pdf_buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name='FinAI_Health_Score_Report.pdf'
+        )
+    except Exception as e:
+        logger.error(f"Health Score PDF error: {str(e)}", exc_info=True)
+        return jsonify({"error": "Failed to generate PDF"}), 500
+
+
+@app.route("/api/download/fire-plan-pdf", methods=["POST"])
+def download_fire_plan_pdf():
+    try:
+        data = request.json
+        result = data.get("result")
+        input_data = data.get("input_data")
+        
+        if not result or not input_data:
+            return jsonify({"error": "Missing result or input data"}), 400
+        
+        pdf_buffer = pdf_generator.generate_fire_plan_pdf(result, input_data)
+        return send_file(
+            pdf_buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name='FinAI_FIRE_Plan_Report.pdf'
+        )
+    except Exception as e:
+        logger.error(f"FIRE Plan PDF error: {str(e)}", exc_info=True)
+        return jsonify({"error": "Failed to generate PDF"}), 500
+
+
+@app.route("/api/download/tax-plan-pdf", methods=["POST"])
+def download_tax_plan_pdf():
+    try:
+        data = request.json
+        result = data.get("result")
+        input_data = data.get("input_data")
+        
+        if not result or not input_data:
+            return jsonify({"error": "Missing result or input data"}), 400
+        
+        pdf_buffer = pdf_generator.generate_tax_plan_pdf(result, input_data)
+        return send_file(
+            pdf_buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name='FinAI_Tax_Plan_Report.pdf'
+        )
+    except Exception as e:
+        logger.error(f"Tax Plan PDF error: {str(e)}", exc_info=True)
+        return jsonify({"error": "Failed to generate PDF"}), 500
+
+
+@app.route("/api/download/couples-plan-pdf", methods=["POST"])
+def download_couples_plan_pdf():
+    try:
+        data = request.json
+        result = data.get("result")
+        partner_a = data.get("partner_a")
+        partner_b = data.get("partner_b")
+        
+        if not result or not partner_a or not partner_b:
+            return jsonify({"error": "Missing result or partner data"}), 400
+        
+        pdf_buffer = pdf_generator.generate_couples_plan_pdf(result, partner_a, partner_b)
+        return send_file(
+            pdf_buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name='FinAI_Couples_Plan_Report.pdf'
+        )
+    except Exception as e:
+        logger.error(f"Couples Plan PDF error: {str(e)}", exc_info=True)
+        return jsonify({"error": "Failed to generate PDF"}), 500
+
+
+@app.route("/api/download/full-analysis-pdf", methods=["POST"])
+def download_full_analysis_pdf():
+    try:
+        data = request.json
+        analysis_data = data.get("data")
+        
+        if not analysis_data:
+            return jsonify({"error": "Missing analysis data"}), 400
+        
+        pdf_buffer = pdf_generator.generate_full_analysis_pdf(analysis_data)
+        return send_file(
+            pdf_buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name='FinAI_Complete_Analysis_Report.pdf'
+        )
+    except Exception as e:
+        logger.error(f"Full Analysis PDF error: {str(e)}", exc_info=True)
+        return jsonify({"error": "Failed to generate PDF"}), 500
+
+
+@app.route("/api/download/life-event-pdf", methods=["POST"])
+def download_life_event_pdf():
+    try:
+        data = request.json
+        result = data.get("result")
+        
+        if not result:
+            return jsonify({"error": "Missing result data"}), 400
+        
+        # Generate a simple document for life event
+        pdf_buffer = pdf_generator.generate_health_score_pdf(result, {})
+        return send_file(
+            pdf_buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name='FinAI_Life_Event_Report.pdf'
+        )
+    except Exception as e:
+        logger.error(f"Life Event PDF error: {str(e)}", exc_info=True)
+        return jsonify({"error": "Failed to generate PDF"}), 500
 
 
 if __name__ == "__main__":

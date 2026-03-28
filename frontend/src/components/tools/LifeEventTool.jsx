@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import axios from 'axios'
-import { Activity, Loader2, ShieldCheck, ShieldAlert, AlertTriangle } from 'lucide-react'
+import { Activity, Loader2, ShieldCheck, ShieldAlert, AlertTriangle, Download } from 'lucide-react'
 import ToolShell from './ToolShell'
 import { API } from '../../App'
+import { downloadPDF } from '../../utils/pdfDownload'
 
 const EVENTS = [
   { id: 'bonus', label: '💰 Received a Bonus' },
@@ -106,9 +107,25 @@ const LifeEventTool = () => {
             )}
           </div>
 
-          <button onClick={() => setResult(null)} className="mt-4 border px-4 py-2 rounded hover:bg-slate-700">
-            🔄 Analyze Another Event
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => downloadPDF(
+                `${API}/api/download/life-event-pdf`,
+                { result },
+                'FinAI_Life_Event_Report.pdf'
+              )}
+              className="flex-1 flex items-center justify-center gap-2 py-3 bg-teal-600 hover:bg-teal-500 text-white rounded-xl transition-colors font-semibold"
+            >
+              <Download size={18} />
+              Download Report
+            </button>
+            <button 
+              onClick={() => setResult(null)}
+              className="flex-1 border border-slate-400 hover:border-slate-300 px-4 py-3 rounded-xl text-slate-300 font-semibold transition-colors"
+            >
+              🔄 Analyze Another Event
+            </button>
+          </div>
 
         </div>
       )}
